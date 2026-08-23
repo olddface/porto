@@ -11,7 +11,16 @@
     "type-check": "vue-tsc --build"
   },
   "dependencies": {
-    "vue": "^3.5.40"
+    "@supabase/supabase-js": "^2.112.3",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "easymde": "^2.21.0",
+    "express": "^5.2.1",
+    "gray-matter": "^4.0.3",
+    "marked": "^18.0.10",
+    "vue": "^3.5.40",
+    "vue-router": "^4.6.4"
   },
   "devDependencies": {
     "@tsconfig/node24": "^24.0.4",
