@@ -1,0 +1,231 @@
+/* ── Reset & tokens ─────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --bg: #0b0d0c;
+  --bg-raised: #111412;
+  --bg-hover: #161a17;
+  --border: #1e2420;
+  --border-bright: #2a322c;
+  --text: #c8d4c8;
+  --text-dim: #6b7a6e;
+  --green: #7cffb2;
+  --green-dim: #4a9e6e;
+  --amber: #e8b84a;
+  --amber-dim: #9a7a2e;
+  --red: #ff6b6b;
+  --font: 'IBM Plex Mono', 'Courier New', monospace;
+  --max-w: 72rem;
+  --nav-h: 3.25rem;
+  --section-gap: 5rem;
+  --radius: 2px;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: calc(var(--nav-h) + 1rem);
+}
+
+body {
+  font-family: var(--font);
+  font-size: 0.875rem;
+  line-height: 1.65;
+  color: var(--text);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* Scanline overlay */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.03) 2px,
+    rgba(0, 0, 0, 0.03) 4px
+  );
+}
+
+::selection {
+  background: var(--green);
+  color: var(--bg);
+}
+
+a {
+  color: var(--green);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+a:hover {
+  color: #a8ffd0;
+}
+
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--green);
+  outline-offset: 2px;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+ul {
+  list-style: none;
+}
+
+/* ── Skip link ──────────────────────────────────────────── */
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 1rem;
+  z-index: 10000;
+  padding: 0.5rem 1rem;
+  background: var(--green);
+  color: var(--bg);
+  font-weight: 600;
+  border-radius: var(--radius);
+}
+
+.skip-link:focus {
+  top: 0.5rem;
+}
+
+/* ── Layout helpers ─────────────────────────────────────── */
+.container {
+  width: 100%;
+  max-width: var(--max-w);
+  margin-inline: auto;
+  padding-inline: 1.25rem;
+}
+
+.section {
+  padding-block: var(--section-gap);
+}
+
+.section-label {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 2rem;
+  color: var(--text-dim);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.section-label::before {
+  content: '//';
+  color: var(--green-dim);
+}
+
+.section-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* ── Prompt motif ───────────────────────────────────────── */
+.prompt {
+  color: var(--text-dim);
+  user-select: none;
+}
+
+.prompt-user {
+  color: var(--green);
+}
+
+.prompt-path {
+  color: var(--amber);
+}
+
+.prompt-symbol {
+  color: var(--text-dim);
+}
+
+/* ── Tags / badges ──────────────────────────────────────── */
+.tag {
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  font-size: 0.7rem;
+  color: var(--green-dim);
+  border: 1px solid var(--border-bright);
+  border-radius: var(--radius);
+  background: var(--bg-raised);
+  white-space: nowrap;
+}
+
+/* ── Buttons ──────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 1rem;
+  font-family: var(--font);
+  font-size: 0.8rem;
+  color: var(--green);
+  background: transparent;
+  border: 1px solid var(--green-dim);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  text-decoration: none;
+}
+
+.btn:hover {
+  background: rgba(124, 255, 178, 0.08);
+  border-color: var(--green);
+  color: var(--green);
+}
+
+.btn--filled {
+  background: var(--green);
+  color: var(--bg);
+  border-color: var(--green);
+  font-weight: 600;
+}
+
+.btn--filled:hover {
+  background: #a8ffd0;
+  border-color: #a8ffd0;
+  color: var(--bg);
+}
+
+/* ── Cursor blink ───────────────────────────────────────── */
+.cursor-blink::after {
+  content: '▋';
+  animation: blink 1s step-end infinite;
+  color: var(--green);
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+/* ── Responsive ─────────────────────────────────────────── */
+@media (max-width: 640px) {
+  :root {
+    --section-gap: 3.5rem;
+  }
+
+  body {
+    font-size: 0.8125rem;
+  }
+}
