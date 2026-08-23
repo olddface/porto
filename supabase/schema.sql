@@ -49,7 +49,7 @@ create table if not exists projects (
   slug text not null unique,
   name text not null,
   description text not null,
-  details text[] not null default '{}',
+  body text not null default '',
   highlights text[] not null default '{}',
   stack text[] not null default '{}',
   repo text not null,
@@ -70,6 +70,42 @@ create policy "Public read social_links" on social_links for select using (true)
 create policy "Public read experiences" on experiences for select using (true);
 create policy "Public read skill_groups" on skill_groups for select using (true);
 create policy "Public read projects" on projects for select using (true);
+
+-- Authenticated write (disable public signups; single admin user)
+create policy "Authenticated insert profiles" on profiles
+  for insert to authenticated with check (true);
+create policy "Authenticated update profiles" on profiles
+  for update to authenticated using (true) with check (true);
+create policy "Authenticated delete profiles" on profiles
+  for delete to authenticated using (true);
+
+create policy "Authenticated insert social_links" on social_links
+  for insert to authenticated with check (true);
+create policy "Authenticated update social_links" on social_links
+  for update to authenticated using (true) with check (true);
+create policy "Authenticated delete social_links" on social_links
+  for delete to authenticated using (true);
+
+create policy "Authenticated insert experiences" on experiences
+  for insert to authenticated with check (true);
+create policy "Authenticated update experiences" on experiences
+  for update to authenticated using (true) with check (true);
+create policy "Authenticated delete experiences" on experiences
+  for delete to authenticated using (true);
+
+create policy "Authenticated insert skill_groups" on skill_groups
+  for insert to authenticated with check (true);
+create policy "Authenticated update skill_groups" on skill_groups
+  for update to authenticated using (true) with check (true);
+create policy "Authenticated delete skill_groups" on skill_groups
+  for delete to authenticated using (true);
+
+create policy "Authenticated insert projects" on projects
+  for insert to authenticated with check (true);
+create policy "Authenticated update projects" on projects
+  for update to authenticated using (true) with check (true);
+create policy "Authenticated delete projects" on projects
+  for delete to authenticated using (true);
 
 -- ── Seed data ─────────────────────────────────────────────────────────────────
 
@@ -131,13 +167,12 @@ begin
     (pid, 'Backend', array['Node.js', 'Express', 'REST APIs', 'PostgreSQL', 'Redis'], 2),
     (pid, 'Infra & Tools', array['Docker', 'Git', 'GitHub Actions', 'Linux', 'Vitest', 'Playwright'], 3);
 
-  insert into projects (profile_id, slug, name, description, details, highlights, stack, repo, demo, sort_order) values
+  insert into projects (profile_id, slug, name, description, body, highlights, stack, repo, demo, sort_order) values
     (pid, 'devlog-sh', 'devlog.sh',
       'This portfolio — a terminal-themed single-page site built with Vue 3 and Vite. No framework bloat, just hash nav and a content file you can swap in 5 minutes.',
-      array[
-        'A personal portfolio designed to look like a terminal session. Built with Vue 3, TypeScript, and Vite — no CSS framework, no unnecessary dependencies.',
-        'All content lives in Supabase and is fetched via GraphQL. Hash-based section navigation keeps it fast and simple.'
-      ],
+      E'A personal portfolio designed to look like a terminal session. Built with Vue 3, TypeScript, and Vite — no CSS framework, no unnecessary dependencies.
+
+All content lives in Supabase and is fetched via GraphQL. Hash-based section navigation keeps it fast and simple.',
       array[
         'Terminal aesthetic with IBM Plex Mono, phosphor green accents, and scanline overlay',
         'Responsive layout with mobile hamburger menu styled as command list',
@@ -148,10 +183,9 @@ begin
       'https://github.com', '#', 0),
     (pid, 'taskflow-api', 'Taskflow API',
       'Full-stack task manager with JWT auth, role-based access, and real-time updates via WebSockets. Postgres for persistence, Redis for session cache.',
-      array[
-        'Taskflow is a team task management app built for small engineering teams. Users can create projects, assign tasks, set priorities, and get real-time updates when teammates make changes.',
-        'The backend exposes a REST API with JWT authentication and role-based access control. WebSocket connections push task updates to connected clients without polling.'
-      ],
+      E'Taskflow is a team task management app built for small engineering teams. Users can create projects, assign tasks, set priorities, and get real-time updates when teammates make changes.
+
+The backend exposes a REST API with JWT authentication and role-based access control. WebSocket connections push task updates to connected clients without polling.',
       array[
         'JWT auth with refresh token rotation and role-based permissions',
         'Real-time task updates via WebSocket — no page refresh needed',
@@ -162,10 +196,9 @@ begin
       'https://github.com', 'https://example.com', 1),
     (pid, 'deploy-kit', 'deploy-kit',
       'CLI tool that wraps Docker + GitHub Actions into one-command deploys for small teams. Parses a yaml config and generates workflow files.',
-      array[
-        'deploy-kit is a CLI that reads a simple YAML config and generates Docker + GitHub Actions workflow files. Small teams without a dedicated DevOps person can go from zero to CI/CD in one command.',
-        'The tool validates config, scaffolds Dockerfiles if missing, and outputs ready-to-commit workflow YAML. Supports Node, Python, and static site presets.'
-      ],
+      E'deploy-kit is a CLI that reads a simple YAML config and generates Docker + GitHub Actions workflow files. Small teams without a dedicated DevOps person can go from zero to CI/CD in one command.
+
+The tool validates config, scaffolds Dockerfiles if missing, and outputs ready-to-commit workflow YAML. Supports Node, Python, and static site presets.',
       array[
         'Single YAML config drives Docker build and GitHub Actions workflow generation',
         'Preset templates for Node, Python, and static sites — no Dockerfile expertise needed',
