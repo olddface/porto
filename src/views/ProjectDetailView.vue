@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRoute, RouterLink } from 'vue-router'
 import { usePortfolio } from '@/composables/usePortfolio'
+import { renderMarkdown } from '@/lib/markdown'
 import type { Project } from '@/types/portfolio'
 
 const route = useRoute()
@@ -9,6 +10,10 @@ const { getProjectBySlug, fetchProject } = usePortfolio()
 
 const project = ref<Project | null>(null)
 const loading = ref(true)
+
+const renderedBody = computed(() =>
+  project.value?.body ? renderMarkdown(project.value.body) : '',
+)
 
 async function loadProject(slug: string) {
   loading.value = true
@@ -59,7 +64,7 @@ watch(
           <h2 class="detail__heading">
             <span class="prompt-symbol">//</span> overview
           </h2>
-          <p v-for="(para, i) in project.details" :key="i" class="detail__para">{{ para }}</p>
+          <div class="detail__body-content markdown-body" v-html="renderedBody" />
 
           <h2 class="detail__heading">
             <span class="prompt-symbol">//</span> highlights
