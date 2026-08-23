@@ -44,7 +44,7 @@ export const PORTFOLIO_QUERY = `
                 slug
                 name
                 description
-                details
+                body
                 highlights
                 stack
                 repo
@@ -66,7 +66,7 @@ export const PROJECT_BY_SLUG_QUERY = `
           slug
           name
           description
-          details
+          body
           highlights
           stack
           repo

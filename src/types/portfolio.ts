@@ -20,7 +20,7 @@ export interface Project {
   slug: string
   name: string
   description: string
-  details: string[]
+  body: string
   highlights: string[]
   stack: string[]
   repo: string
