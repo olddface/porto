@@ -32,7 +32,7 @@ interface ProfileNode {
     slug: string
     name: string
     description: string
-    details: string[]
+    body: string
     highlights: string[]
     stack: string[]
     repo: string
@@ -49,7 +49,7 @@ interface ProjectQueryResult {
     slug: string
     name: string
     description: string
-    details: string[]
+    body: string
     highlights: string[]
     stack: string[]
     repo: string
