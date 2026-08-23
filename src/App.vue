@@ -7,7 +7,7 @@ const { content, loading, error } = providePortfolio()
 </script>
 
 <template>
-  <a href="#main" class="skip-link">Skip to content</a>
+  <a href="#main" class="skip-link">Skip to contents</a>
 
   <div v-if="loading" class="state-screen">
     <div class="container">
