@@ -14,6 +14,22 @@ const renderedBody = computed(() =>
   project.value?.body ? renderMarkdown(project.value.body) : '',
 )
 
+function isRepoLink(value: string): boolean {
+  const trimmed = value.trim()
+  if (!trimmed) return false
+  if (/^https?:\/\//i.test(trimmed)) return true
+  if (/^www\./i.test(trimmed)) return true
+  return /^[\w.-]+\.[a-z]{2,}(\/.*)?$/i.test(trimmed)
+}
+
+function repoHref(value: string): string {
+  const trimmed = value.trim()
+  return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`
+}
+
+const projectRepo = computed(() => project.value?.repo?.trim() ?? '')
+const repoIsLink = computed(() => isRepoLink(projectRepo.value))
+
 useHead({
   title: () => (project.value ? `${project.value.name} — Olddface` : 'Project — Olddface'),
 })
@@ -63,13 +79,17 @@ useHead({
 
         <div class="detail__actions">
           <a
-            :href="project.repo"
+            v-if="repoIsLink"
+            :href="repoHref(projectRepo)"
             target="_blank"
             rel="noopener noreferrer"
             class="btn"
           >
             $ git clone [repo]
           </a>
+          <span v-else-if="projectRepo" class="btn detail__repo-note">
+            $ {{ projectRepo }}
+          </span>
           <a
             v-if="project.demo !== '#'"
             :href="project.demo"
@@ -183,6 +203,16 @@ useHead({
   display: flex;
   flex-wrap: wrap;
   gap: 0.75rem;
+}
+
+.detail__repo-note {
+  cursor: default;
+}
+
+.detail__repo-note:hover {
+  background: transparent;
+  border-color: var(--green-dim);
+  color: var(--green);
 }
 
 .detail__not-found {
