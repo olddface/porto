@@ -160,7 +160,9 @@ ul {
 
 /* ── Tags / badges ──────────────────────────────────────── */
 .tag {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
   padding: 0.15rem 0.5rem;
   font-size: 0.7rem;
   color: var(--green-dim);

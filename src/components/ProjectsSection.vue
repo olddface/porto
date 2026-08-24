@@ -24,7 +24,9 @@ const { content } = usePortfolio()
           </header>
           <p class="project__desc">{{ project.description }}</p>
           <div class="project__stack">
-            <span v-for="tech in project.stack" :key="tech" class="tag">{{ tech }}</span>
+            <span v-for="tech in project.stack" :key="tech" class="tag">
+              <TechIcon :tech="tech" />{{ tech }}
+            </span>
           </div>
         </RouterLink>
       </div>

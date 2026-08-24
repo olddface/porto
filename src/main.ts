@@ -1,6 +1,7 @@
 import { createApp } from 'vue'
 import App from '@/App.vue'
 import router from '@/router'
+import TechIcon from '@/components/TechIcon.vue'
 import { getAuth } from '@/composables/useAuth'
 import './styles/base.css'
 import './styles/admin.css'
@@ -24,4 +25,4 @@ router.beforeEach(async (to) => {
   }
 })
 
-createApp(App).use(router).mount('#app')
+createApp(App).component('TechIcon', TechIcon).use(router).mount('#app')

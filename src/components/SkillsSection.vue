@@ -14,7 +14,9 @@ const { content } = usePortfolio()
             <span class="prompt-symbol">$</span> ls {{ group.category.toLowerCase() }}/
           </h3>
           <div class="skills__tags">
-            <span v-for="skill in group.skills" :key="skill" class="tag">{{ skill }}</span>
+            <span v-for="skill in group.skills" :key="skill" class="tag">
+              <TechIcon :tech="skill" />{{ skill }}
+            </span>
           </div>
         </div>
       </div>
