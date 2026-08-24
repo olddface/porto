@@ -81,7 +81,7 @@ export async function updateProfile(id: string, profile: Omit<DbProfile, 'id'>):
 }
 
 export async function fetchSocialLinks(): Promise<DbSocialLink[]> {
-  const { data, error } = await supabase
+  const { data, error } = await db()
     .from('social_links')
     .select('*')
     .order('sort_order', { ascending: true })
@@ -90,7 +90,7 @@ export async function fetchSocialLinks(): Promise<DbSocialLink[]> {
 }
 
 export async function upsertSocialLinks(links: Omit<DbSocialLink, 'profile_id'>[], profileId: string): Promise<void> {
-  const { data: existing, error: fetchError } = await supabase
+  const { data: existing, error: fetchError } = await db()
     .from('social_links')
     .select('id')
     .eq('profile_id', profileId)
@@ -120,7 +120,7 @@ export async function upsertSocialLinks(links: Omit<DbSocialLink, 'profile_id'>[
 }
 
 export async function fetchExperiences(): Promise<DbExperience[]> {
-  const { data, error } = await supabase
+  const { data, error } = await db()
     .from('experiences')
     .select('*')
     .order('sort_order', { ascending: true })
@@ -132,7 +132,7 @@ export async function upsertExperiences(
   items: Omit<DbExperience, 'profile_id'>[],
   profileId: string,
 ): Promise<void> {
-  const { data: existing, error: fetchError } = await supabase
+  const { data: existing, error: fetchError } = await db()
     .from('experiences')
     .select('id')
     .eq('profile_id', profileId)
@@ -162,7 +162,7 @@ export async function upsertExperiences(
 }
 
 export async function fetchSkillGroups(): Promise<DbSkillGroup[]> {
-  const { data, error } = await supabase
+  const { data, error } = await db()
     .from('skill_groups')
     .select('*')
     .order('sort_order', { ascending: true })
@@ -174,7 +174,7 @@ export async function upsertSkillGroups(
   items: Omit<DbSkillGroup, 'profile_id'>[],
   profileId: string,
 ): Promise<void> {
-  const { data: existing, error: fetchError } = await supabase
+  const { data: existing, error: fetchError } = await db()
     .from('skill_groups')
     .select('id')
     .eq('profile_id', profileId)
@@ -204,7 +204,7 @@ export async function upsertSkillGroups(
 }
 
 export async function fetchProjects(): Promise<DbProject[]> {
-  const { data, error } = await supabase
+  const { data, error } = await db()
     .from('projects')
     .select('*')
     .order('sort_order', { ascending: true })
@@ -222,7 +222,7 @@ export async function createProject(
   project: Omit<DbProject, 'id' | 'profile_id' | 'sort_order'>,
   profileId: string,
 ): Promise<DbProject> {
-  const { data: maxRow } = await supabase
+  const { data: maxRow } = await db()
     .from('projects')
     .select('sort_order')
     .eq('profile_id', profileId)
@@ -232,7 +232,7 @@ export async function createProject(
 
   const sortOrder = (maxRow?.sort_order ?? -1) + 1
 
-  const { data, error } = await supabase
+  const { data, error } = await db()
     .from('projects')
     .insert({ ...project, profile_id: profileId, sort_order: sortOrder })
     .select()
@@ -253,7 +253,7 @@ export async function deleteProject(id: string): Promise<void> {
 
 export async function reorderProjects(orderedIds: string[]): Promise<void> {
   for (let i = 0; i < orderedIds.length; i++) {
-    const { error } = await supabase
+    const { error } = await db()
       .from('projects')
       .update({ sort_order: i })
       .eq('id', orderedIds[i]!)
