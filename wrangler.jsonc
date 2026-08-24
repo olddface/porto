@@ -1,0 +1,10 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "portofolio",
+  "compatibility_date": "2026-08-24",
+  "main": "./.output/server/index.mjs",
+  "assets": {
+    "directory": "./.output/public",
+    "binding": "ASSETS"
+  }
+}

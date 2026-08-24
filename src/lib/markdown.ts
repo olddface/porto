@@ -1,5 +1,5 @@
 import { marked } from 'marked'
-import DOMPurify from 'dompurify'
+import xss from 'xss'
 
 marked.setOptions({
   gfm: true,
@@ -8,5 +8,5 @@ marked.setOptions({
 
 export function renderMarkdown(markdown: string): string {
   const html = marked.parse(markdown) as string
-  return DOMPurify.sanitize(html)
+  return xss(html)
 }

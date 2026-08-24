@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, watch } from 'vue'
-import { useRoute, RouterLink } from 'vue-router'
 import { NAV_ITEMS } from '@/types/portfolio'
 
 const route = useRoute()
@@ -19,7 +18,7 @@ function closeMenu() {
 
 function isNavActive(href: string): boolean {
   const id = href.replace('#', '')
-  if (route.name === 'project-detail' && id === 'projects') return true
+  if (route.path.startsWith('/projects/') && id === 'projects') return true
   return activeSection.value === id
 }
 
@@ -27,7 +26,7 @@ let observer: IntersectionObserver | null = null
 
 function setupObserver() {
   observer?.disconnect()
-  if (route.name !== 'home') return
+  if (route.path !== '/') return
 
   observer = new IntersectionObserver(
     (entries) => {
@@ -48,7 +47,7 @@ function setupObserver() {
 
 onMounted(setupObserver)
 
-watch(() => route.name, () => {
+watch(() => route.path, () => {
   setupObserver()
 })
 
@@ -60,11 +59,11 @@ onUnmounted(() => {
 <template>
   <header class="nav">
     <div class="container nav__inner">
-      <RouterLink to="/" class="nav__prompt" aria-label="Home">
+      <NuxtLink to="/" class="nav__prompt" aria-label="Home">
         <span class="prompt">
           <span class="prompt-user">guest</span><span class="prompt-symbol">@</span><span class="prompt-path">portfolio</span><span class="prompt-symbol">:~$</span>
         </span>
-      </RouterLink>
+      </NuxtLink>
 
       <button
         class="nav__toggle"
@@ -77,7 +76,7 @@ onUnmounted(() => {
       </button>
 
       <nav id="nav-menu" class="nav__links" :class="{ open: menuOpen }">
-        <RouterLink
+        <NuxtLink
           v-for="link in NAV_ITEMS"
           :key="link.href"
           :to="{ path: '/', hash: link.href }"
@@ -86,7 +85,7 @@ onUnmounted(() => {
           @click="closeMenu"
         >
           <span class="prompt-symbol">$</span> {{ link.label }}
-        </RouterLink>
+        </NuxtLink>
       </nav>
     </div>
   </header>

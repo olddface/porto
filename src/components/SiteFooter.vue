@@ -10,7 +10,7 @@ const year = new Date().getFullYear()
     <div class="container footer__inner">
       <p class="footer__text">
         <span class="prompt-symbol">//</span>
-        {{ content!.name }} · {{ year }} · built with Vue 3 + Vite
+        {{ content!.name }} · {{ year }} · built with Nuxt
       </p>
       <p class="footer__status">
         <span class="footer__dot" />

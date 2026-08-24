@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { RouterLink } from 'vue-router'
 import { usePortfolio } from '@/composables/usePortfolio'
 
 const { content } = usePortfolio()
@@ -10,10 +9,10 @@ const { content } = usePortfolio()
     <div class="container">
       <h2 class="section-label">projects</h2>
       <div class="projects">
-        <RouterLink
+        <NuxtLink
           v-for="project in content!.projects"
           :key="project.slug"
-          :to="{ name: 'project-detail', params: { slug: project.slug } }"
+          :to="`/projects/${project.slug}`"
           class="project"
         >
           <header class="project__header">
@@ -28,7 +27,7 @@ const { content } = usePortfolio()
               <TechIcon :tech="tech" />{{ tech }}
             </span>
           </div>
-        </RouterLink>
+        </NuxtLink>
       </div>
     </div>
   </section>

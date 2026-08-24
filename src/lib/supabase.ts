@@ -1,10 +1,25 @@
-import { createClient } from '@supabase/supabase-js'
+import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
-const supabasePublishableKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY
+let browserClient: SupabaseClient | null = null
 
-if (!supabaseUrl || !supabasePublishableKey) {
-  throw new Error('VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY must be set')
+export function useSupabaseClient(): SupabaseClient {
+  if (import.meta.client && browserClient) {
+    return browserClient
+  }
+
+  const config = useRuntimeConfig()
+  const url = config.public.supabaseUrl
+  const key = config.public.supabasePublishableKey
+
+  if (!url || !key) {
+    throw new Error('NUXT_PUBLIC_SUPABASE_URL and NUXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY must be set')
+  }
+
+  const client = createClient(url, key)
+
+  if (import.meta.client) {
+    browserClient = client
+  }
+
+  return client
 }
-
-export const supabase = createClient(supabaseUrl, supabasePublishableKey)

@@ -1,6 +1,6 @@
 import { inject, provide, ref, computed, type InjectionKey, type Ref, type ComputedRef } from 'vue'
 import type { Session, User } from '@supabase/supabase-js'
-import { supabase } from '@/lib/supabase'
+import { useSupabaseClient } from '@/lib/supabase'
 
 export interface AuthState {
   session: Ref<Session | null>
@@ -26,6 +26,7 @@ function createAuthState(): AuthState {
   async function init() {
     if (initialized.value) return
 
+    const supabase = useSupabaseClient()
     const { data } = await supabase.auth.getSession()
     session.value = data.session
     loading.value = false
@@ -39,6 +40,7 @@ function createAuthState(): AuthState {
 
   async function signIn(email: string, password: string) {
     loading.value = true
+    const supabase = useSupabaseClient()
     const { error } = await supabase.auth.signInWithPassword({ email, password })
     loading.value = false
     return { error: error?.message ?? null }
@@ -46,6 +48,7 @@ function createAuthState(): AuthState {
 
   async function signOut() {
     loading.value = true
+    const supabase = useSupabaseClient()
     await supabase.auth.signOut()
     loading.value = false
   }

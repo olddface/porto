@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import SiteNav from '@/components/SiteNav.vue'
-import SiteFooter from '@/components/SiteFooter.vue'
-import { providePortfolio } from '@/composables/usePortfolio'
+import { fetchPortfolioContent } from '@/api/portfolio'
 
-const { content, loading, error } = providePortfolio()
+const { data: content, error, pending: loading } = await useAsyncData('portfolio', () =>
+  fetchPortfolioContent(),
+)
 </script>
 
 <template>
@@ -24,10 +24,10 @@ const { content, loading, error } = providePortfolio()
         <span class="prompt-user">guest</span><span class="prompt-symbol">@</span><span class="prompt-path">portfolio</span><span class="prompt-symbol">:~$</span>
         fetch content
       </p>
-      <p class="state-screen__error">error: {{ error }}</p>
+      <p class="state-screen__error">error: {{ error.message }}</p>
       <p class="state-screen__hint">
-        Check <code>VITE_SUPABASE_URL</code> and
-        <code>VITE_SUPABASE_PUBLISHABLE_KEY</code> are set, then run <code>supabase/schema.sql</code> in the SQL Editor.
+        Check <code>NUXT_PUBLIC_SUPABASE_URL</code> and
+        <code>NUXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY</code> are set, then run <code>supabase/schema.sql</code> in the SQL Editor.
       </p>
     </div>
   </div>
@@ -35,7 +35,7 @@ const { content, loading, error } = providePortfolio()
   <template v-else-if="content">
     <SiteNav />
     <main id="main">
-      <RouterView />
+      <slot />
     </main>
     <SiteFooter />
   </template>

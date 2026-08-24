@@ -1,4 +1,8 @@
-import { supabase } from '@/lib/supabase'
+import { useSupabaseClient } from '@/lib/supabase'
+
+function db() {
+  return useSupabaseClient()
+}
 
 export interface DbProfile {
   id: string
@@ -58,21 +62,21 @@ function throwIfError(error: { message: string } | null): void {
 }
 
 export async function getProfileId(): Promise<string> {
-  const { data, error } = await supabase.from('profiles').select('id').limit(1).single()
+  const { data, error } = await db().from('profiles').select('id').limit(1).single()
   throwIfError(error)
   if (!data) throw new Error('No profile found')
   return data.id
 }
 
 export async function fetchProfile(): Promise<DbProfile> {
-  const { data, error } = await supabase.from('profiles').select('*').limit(1).single()
+  const { data, error } = await db().from('profiles').select('*').limit(1).single()
   throwIfError(error)
   if (!data) throw new Error('No profile found')
   return data
 }
 
 export async function updateProfile(id: string, profile: Omit<DbProfile, 'id'>): Promise<void> {
-  const { error } = await supabase.from('profiles').update(profile).eq('id', id)
+  const { error } = await db().from('profiles').update(profile).eq('id', id)
   throwIfError(error)
 }
 
@@ -97,7 +101,7 @@ export async function upsertSocialLinks(links: Omit<DbSocialLink, 'profile_id'>[
 
   const toDelete = [...existingIds].filter((id) => !incomingIds.has(id))
   if (toDelete.length) {
-    const { error } = await supabase.from('social_links').delete().in('id', toDelete)
+    const { error } = await db().from('social_links').delete().in('id', toDelete)
     throwIfError(error)
   }
 
@@ -105,11 +109,11 @@ export async function upsertSocialLinks(links: Omit<DbSocialLink, 'profile_id'>[
     const link = links[i]!
     const row = { ...link, profile_id: profileId, sort_order: i }
     if (link.id && existingIds.has(link.id)) {
-      const { error } = await supabase.from('social_links').update(row).eq('id', link.id)
+      const { error } = await db().from('social_links').update(row).eq('id', link.id)
       throwIfError(error)
     } else {
       const { id: _id, ...insertRow } = row
-      const { error } = await supabase.from('social_links').insert(insertRow)
+      const { error } = await db().from('social_links').insert(insertRow)
       throwIfError(error)
     }
   }
@@ -139,7 +143,7 @@ export async function upsertExperiences(
 
   const toDelete = [...existingIds].filter((id) => !incomingIds.has(id))
   if (toDelete.length) {
-    const { error } = await supabase.from('experiences').delete().in('id', toDelete)
+    const { error } = await db().from('experiences').delete().in('id', toDelete)
     throwIfError(error)
   }
 
@@ -147,11 +151,11 @@ export async function upsertExperiences(
     const item = items[i]!
     const row = { ...item, profile_id: profileId, sort_order: i }
     if (item.id && existingIds.has(item.id)) {
-      const { error } = await supabase.from('experiences').update(row).eq('id', item.id)
+      const { error } = await db().from('experiences').update(row).eq('id', item.id)
       throwIfError(error)
     } else {
       const { id: _id, ...insertRow } = row
-      const { error } = await supabase.from('experiences').insert(insertRow)
+      const { error } = await db().from('experiences').insert(insertRow)
       throwIfError(error)
     }
   }
@@ -181,7 +185,7 @@ export async function upsertSkillGroups(
 
   const toDelete = [...existingIds].filter((id) => !incomingIds.has(id))
   if (toDelete.length) {
-    const { error } = await supabase.from('skill_groups').delete().in('id', toDelete)
+    const { error } = await db().from('skill_groups').delete().in('id', toDelete)
     throwIfError(error)
   }
 
@@ -189,11 +193,11 @@ export async function upsertSkillGroups(
     const item = items[i]!
     const row = { ...item, profile_id: profileId, sort_order: i }
     if (item.id && existingIds.has(item.id)) {
-      const { error } = await supabase.from('skill_groups').update(row).eq('id', item.id)
+      const { error } = await db().from('skill_groups').update(row).eq('id', item.id)
       throwIfError(error)
     } else {
       const { id: _id, ...insertRow } = row
-      const { error } = await supabase.from('skill_groups').insert(insertRow)
+      const { error } = await db().from('skill_groups').insert(insertRow)
       throwIfError(error)
     }
   }
@@ -209,7 +213,7 @@ export async function fetchProjects(): Promise<DbProject[]> {
 }
 
 export async function fetchProjectById(id: string): Promise<DbProject | null> {
-  const { data, error } = await supabase.from('projects').select('*').eq('id', id).maybeSingle()
+  const { data, error } = await db().from('projects').select('*').eq('id', id).maybeSingle()
   throwIfError(error)
   return data
 }
@@ -238,12 +242,12 @@ export async function createProject(
 }
 
 export async function updateProject(id: string, project: Partial<DbProject>): Promise<void> {
-  const { error } = await supabase.from('projects').update(project).eq('id', id)
+  const { error } = await db().from('projects').update(project).eq('id', id)
   throwIfError(error)
 }
 
 export async function deleteProject(id: string): Promise<void> {
-  const { error } = await supabase.from('projects').delete().eq('id', id)
+  const { error } = await db().from('projects').delete().eq('id', id)
   throwIfError(error)
 }
 

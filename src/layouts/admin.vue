@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { RouterLink, RouterView, useRoute } from 'vue-router'
 import { useAuth } from '@/composables/useAuth'
 
 const route = useRoute()
@@ -16,6 +15,7 @@ const navItems = [
 
 async function handleSignOut() {
   await signOut()
+  await navigateTo('/admin/login')
 }
 </script>
 
@@ -23,14 +23,14 @@ async function handleSignOut() {
   <div class="admin-shell">
     <aside class="admin-sidebar">
       <div class="admin-sidebar__header">
-        <RouterLink to="/admin" class="admin-sidebar__brand">
+        <NuxtLink to="/admin" class="admin-sidebar__brand">
           <span class="prompt-symbol">$</span> admin
-        </RouterLink>
+        </NuxtLink>
         <p class="admin-sidebar__user">{{ user?.email }}</p>
       </div>
 
       <nav class="admin-sidebar__nav">
-        <RouterLink
+        <NuxtLink
           v-for="item in navItems"
           :key="item.to"
           :to="item.to"
@@ -38,13 +38,13 @@ async function handleSignOut() {
           :class="{ active: route.path === item.to || (item.to !== '/admin' && route.path.startsWith(item.to)) }"
         >
           <span class="prompt-symbol">></span> {{ item.label }}
-        </RouterLink>
+        </NuxtLink>
       </nav>
 
       <div class="admin-sidebar__footer">
-        <RouterLink to="/" class="admin-sidebar__link">
+        <NuxtLink to="/" class="admin-sidebar__link">
           <span class="prompt-symbol">$</span> view site
-        </RouterLink>
+        </NuxtLink>
         <button type="button" class="btn btn--sm admin-sidebar__logout" @click="handleSignOut">
           logout
         </button>
@@ -52,7 +52,7 @@ async function handleSignOut() {
     </aside>
 
     <main class="admin-main">
-      <RouterView />
+      <slot />
     </main>
   </div>
 </template>

@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabase'
+import { useSupabaseClient } from '@/lib/supabase'
 import type { PortfolioContent, Project } from '@/types/portfolio'
 
 function throwIfError(error: { message: string } | null): void {
@@ -6,6 +6,8 @@ function throwIfError(error: { message: string } | null): void {
 }
 
 export async function fetchPortfolioContent(): Promise<PortfolioContent> {
+  const supabase = useSupabaseClient()
+
   const [profileRes, socialsRes, experiencesRes, skillsRes, projectsRes] = await Promise.all([
     supabase.from('profiles').select('*').limit(1).single(),
     supabase.from('social_links').select('label, href').order('sort_order'),
@@ -46,6 +48,8 @@ export async function fetchPortfolioContent(): Promise<PortfolioContent> {
 }
 
 export async function fetchProjectBySlug(slug: string): Promise<Project | null> {
+  const supabase = useSupabaseClient()
+
   const { data, error } = await supabase
     .from('projects')
     .select('slug, name, description, body, highlights, stack, repo, demo')
