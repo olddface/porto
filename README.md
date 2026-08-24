@@ -1,6 +1,9 @@
 # .
 
 This template should help get you started developing with Vue 3 in Vite.
+Backend?? just use Supabase.
+
+[Live link](http://olddface.my.id/)
 
 ## Recommended IDE Setup
 
