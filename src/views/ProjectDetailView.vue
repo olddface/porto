@@ -57,7 +57,9 @@ watch(
         <p class="detail__desc">{{ project.description }}</p>
 
         <div class="detail__stack">
-          <span v-for="tech in project.stack" :key="tech" class="tag">{{ tech }}</span>
+          <span v-for="tech in project.stack" :key="tech" class="tag">
+            <TechIcon :tech="tech" />{{ tech }}
+          </span>
         </div>
 
         <div class="detail__body">
