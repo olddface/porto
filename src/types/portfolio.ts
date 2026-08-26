@@ -3,12 +3,17 @@ export interface SocialLink {
   href: string
 }
 
+export interface PortfolioImage {
+  url: string
+}
+
 export interface Experience {
   company: string
   role: string
   period: string
   location: string
   bullets: string[]
+  images?: PortfolioImage[]
 }
 
 export interface SkillGroup {
@@ -25,6 +30,8 @@ export interface Project {
   stack: string[]
   repo: string
   demo: string
+  image_url?: string | null
+  images?: PortfolioImage[]
 }
 
 export interface PortfolioContent {

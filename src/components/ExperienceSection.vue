@@ -33,6 +33,15 @@ const { content } = usePortfolio()
                 {{ bullet }}
               </li>
             </ul>
+            <div v-if="job.images?.length" class="timeline__images">
+              <img
+                v-for="(image, k) in job.images"
+                :key="k"
+                :src="image.url"
+                alt=""
+                class="timeline__image"
+              />
+            </div>
           </div>
         </article>
       </div>
@@ -134,6 +143,21 @@ const { content } = usePortfolio()
   color: var(--green-dim);
   flex-shrink: 0;
   user-select: none;
+}
+
+.timeline__images {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.timeline__image {
+  width: 4.5rem;
+  height: 4.5rem;
+  object-fit: cover;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
 }
 
 @media (max-width: 640px) {

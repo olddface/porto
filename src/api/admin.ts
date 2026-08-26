@@ -1,4 +1,11 @@
 import { useSupabaseClient } from '@/lib/supabase'
+import {
+  fetchImagesForParents,
+  groupImagesByParent,
+  deleteImagesForParents,
+  fetchImagesForParent,
+  type DbImage,
+} from '@/api/images'
 
 function db() {
   return useSupabaseClient()
@@ -33,6 +40,7 @@ export interface DbExperience {
   location: string
   bullets: string[]
   sort_order: number
+  images?: DbImage[]
 }
 
 export interface DbSkillGroup {
@@ -56,6 +64,7 @@ export interface DbProject {
   demo: string
   image_url: string | null
   sort_order: number
+  images?: DbImage[]
 }
 
 function throwIfError(error: { message: string } | null): void {
@@ -126,7 +135,17 @@ export async function fetchExperiences(): Promise<DbExperience[]> {
     .select('*')
     .order('sort_order', { ascending: true })
   throwIfError(error)
-  return data ?? []
+
+  const experiences = data ?? []
+  if (!experiences.length) return []
+
+  const images = await fetchImagesForParents('experiences', experiences.map((row) => row.id), db())
+  const imagesByParent = groupImagesByParent(images)
+
+  return experiences.map((row) => ({
+    ...row,
+    images: imagesByParent.get(row.id) ?? [],
+  }))
 }
 
 export async function upsertExperiences(
@@ -144,6 +163,7 @@ export async function upsertExperiences(
 
   const toDelete = [...existingIds].filter((id) => !incomingIds.has(id))
   if (toDelete.length) {
+    await deleteImagesForParents('experiences', toDelete)
     const { error } = await db().from('experiences').delete().in('id', toDelete)
     throwIfError(error)
   }
@@ -210,13 +230,26 @@ export async function fetchProjects(): Promise<DbProject[]> {
     .select('*')
     .order('sort_order', { ascending: true })
   throwIfError(error)
-  return data ?? []
+
+  const projects = data ?? []
+  if (!projects.length) return []
+
+  const images = await fetchImagesForParents('projects', projects.map((row) => row.id), db())
+  const imagesByParent = groupImagesByParent(images)
+
+  return projects.map((row) => ({
+    ...row,
+    images: imagesByParent.get(row.id) ?? [],
+  }))
 }
 
 export async function fetchProjectById(id: string): Promise<DbProject | null> {
   const { data, error } = await db().from('projects').select('*').eq('id', id).maybeSingle()
   throwIfError(error)
-  return data
+  if (!data) return null
+
+  const images = await fetchImagesForParent('projects', id, db())
+  return { ...data, images }
 }
 
 export async function createProject(
@@ -248,6 +281,7 @@ export async function updateProject(id: string, project: Partial<DbProject>): Pr
 }
 
 export async function deleteProject(id: string): Promise<void> {
+  await deleteImagesForParents('projects', [id])
   const { error } = await db().from('projects').delete().eq('id', id)
   throwIfError(error)
 }

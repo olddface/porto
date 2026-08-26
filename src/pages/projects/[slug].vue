@@ -54,6 +54,20 @@ useHead({
 
         <p class="detail__desc">{{ project.description }}</p>
 
+        <div v-if="project.image_url" class="detail__hero">
+          <img :src="project.image_url" alt="" class="detail__hero-image" />
+        </div>
+
+        <div v-if="project.images?.length" class="detail__gallery">
+          <img
+            v-for="(image, i) in project.images"
+            :key="i"
+            :src="image.url"
+            alt=""
+            class="detail__gallery-image"
+          />
+        </div>
+
         <div class="detail__stack">
           <span v-for="tech in project.stack" :key="tech" class="tag">
             <TechIcon :tech="tech" />{{ tech }}
@@ -151,6 +165,34 @@ useHead({
   line-height: 1.7;
   max-width: 42rem;
   margin-bottom: 1rem;
+}
+
+.detail__hero {
+  margin-bottom: 1rem;
+}
+
+.detail__hero-image {
+  display: block;
+  width: 100%;
+  max-height: 16rem;
+  object-fit: cover;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.detail__gallery {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.detail__gallery-image {
+  width: 6rem;
+  height: 6rem;
+  object-fit: cover;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
 }
 
 .detail__stack {

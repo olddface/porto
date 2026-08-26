@@ -2,6 +2,10 @@
 import { usePortfolio } from '@/composables/usePortfolio'
 
 const { content } = usePortfolio()
+
+function projectThumbnail(project: { image_url?: string | null; images?: { url: string }[] }) {
+  return project.image_url || project.images?.[0]?.url || null
+}
 </script>
 
 <template>
@@ -15,6 +19,12 @@ const { content } = usePortfolio()
           :to="`/projects/${project.slug}`"
           class="project"
         >
+          <img
+            v-if="projectThumbnail(project)"
+            :src="projectThumbnail(project)!"
+            alt=""
+            class="project__thumb"
+          />
           <header class="project__header">
             <h3 class="project__name">
               <span class="prompt-symbol">./</span>{{ project.name }}
@@ -54,6 +64,15 @@ const { content } = usePortfolio()
 
 .project:hover {
   border-color: var(--green-dim);
+}
+
+.project__thumb {
+  width: 100%;
+  max-height: 10rem;
+  object-fit: cover;
+  border-radius: var(--radius);
+  margin-bottom: 0.75rem;
+  border: 1px solid var(--border);
 }
 
 .project__header {

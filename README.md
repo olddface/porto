@@ -37,6 +37,8 @@ In the [Supabase SQL Editor](https://supabase.com/dashboard), run these in order
 1. `supabase/schema.sql` — base tables and seed data (fresh projects)
 2. `supabase/migrations/001_admin_cms.sql` — if upgrading an older DB
 3. `supabase/migrations/002_r2_and_project_image.sql` — R2 settings table + `projects.image_url`
+4. `supabase/migrations/003_images.sql` — polymorphic `images` table (`from_table` + `from_id`)
+5. `supabase/migrations/004_images_from_lookup_index.sql` — index on `(from_table, from_id)` if missing
 
 Create an admin user in **Authentication → Users** (email + password). Public signups should stay disabled.
 
@@ -99,6 +101,18 @@ Browser → saves public URL to Supabase project row or markdown
 ```
 
 Per-user R2 credentials live in `user_r2_settings` with RLS (`auth.uid() = user_id`). Other authenticated users cannot read your credentials.
+
+### Polymorphic images table
+
+Uploaded images (except project thumbnails in `projects.image_url`) are tracked in `images`:
+
+| Column | Example |
+|--------|---------|
+| `from_table` | `experiences` |
+| `from_id` | UUID of the parent row |
+| `url` | Public R2 URL |
+
+Admin experience entries load images where `from_table = 'experiences'` and `from_id = experiences.id`. Projects use `from_table = 'projects'` and `from_id = projects.id` (gallery in edit project; `projects.image_url` remains the optional thumbnail). Save a new row before uploading gallery images (it needs an ID first).
 
 ## Production deploy
 

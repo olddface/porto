@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import ChipInput from '@/components/admin/ChipInput.vue'
+import EntityImagesUpload from '@/components/admin/EntityImagesUpload.vue'
 import MarkdownEditor from '@/components/admin/MarkdownEditor.vue'
 import ProjectImageUpload from '@/components/admin/ProjectImageUpload.vue'
 import { fetchProjectById, getProfileId, updateProject } from '@/api/admin'
@@ -110,12 +111,17 @@ async function handleSubmit() {
       </div>
 
       <div class="admin-field">
-        <label>Project image</label>
+        <label>Thumbnail</label>
         <ProjectImageUpload
           v-model="form.image_url"
           :upload-prefix="imageUploadPrefix"
           :project-id="projectId"
         />
+      </div>
+
+      <div class="admin-field">
+        <label>Gallery images</label>
+        <EntityImagesUpload from-table="projects" :from-id="projectId" />
       </div>
 
       <div class="admin-field">
