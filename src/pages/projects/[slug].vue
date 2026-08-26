@@ -167,6 +167,7 @@ useHead({
   padding: 1.5rem;
   margin-bottom: 2rem;
 }
+/* test */
 
 .detail__heading {
   font-size: 0.75rem;
