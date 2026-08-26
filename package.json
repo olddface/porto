@@ -8,9 +8,12 @@
     "build": "nuxt build",
     "preview": "nuxt preview",
     "deploy": "wrangler deploy",
+    "configure-r2-cors": "node scripts/configure-r2-cors.mjs",
     "download-icons": "node scripts/download-tech-icons.mjs"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1118.0",
+    "@aws-sdk/s3-request-presigner": "^3.1118.0",
     "@supabase/supabase-js": "^2.112.3",
     "easymde": "^2.21.0",
     "marked": "^18.0.10",

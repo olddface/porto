@@ -29,6 +29,9 @@ const { user } = useAuth()
       <NuxtLink to="/admin/projects" class="admin-card admin-card--link">
         <span class="prompt-symbol">></span> Manage projects
       </NuxtLink>
+      <NuxtLink to="/admin/settings" class="admin-card admin-card--link">
+        <span class="prompt-symbol">></span> Storage settings (R2)
+      </NuxtLink>
     </div>
   </div>
 </template>

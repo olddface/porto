@@ -54,6 +54,7 @@ export interface DbProject {
   stack: string[]
   repo: string
   demo: string
+  image_url: string | null
   sort_order: number
 }
 

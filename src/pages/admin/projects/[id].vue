@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import ChipInput from '@/components/admin/ChipInput.vue'
 import MarkdownEditor from '@/components/admin/MarkdownEditor.vue'
+import ProjectImageUpload from '@/components/admin/ProjectImageUpload.vue'
 import { fetchProjectById, getProfileId, updateProject } from '@/api/admin'
 
 definePageMeta({ layout: 'admin' })
@@ -23,7 +24,10 @@ const form = ref({
   stack: [] as string[],
   repo: '',
   demo: '#',
+  image_url: '',
 })
+
+const imageUploadPrefix = computed(() => `projects/${form.value.slug || projectId.value}`)
 
 onMounted(async () => {
   try {
@@ -42,6 +46,7 @@ onMounted(async () => {
       stack: [...project.stack],
       repo: project.repo,
       demo: project.demo,
+      image_url: project.image_url ?? '',
     }
   } catch (e) {
     error.value = e instanceof Error ? e.message : 'Failed to load project'
@@ -56,7 +61,10 @@ async function handleSubmit() {
   success.value = false
 
   try {
-    await updateProject(projectId.value, form.value)
+    await updateProject(projectId.value, {
+      ...form.value,
+      image_url: form.value.image_url || null,
+    })
     success.value = true
   } catch (e) {
     error.value = e instanceof Error ? e.message : 'Failed to save project'
@@ -99,6 +107,15 @@ async function handleSubmit() {
       <div class="admin-field">
         <label>Highlights</label>
         <ChipInput v-model="form.highlights" />
+      </div>
+
+      <div class="admin-field">
+        <label>Project image</label>
+        <ProjectImageUpload
+          v-model="form.image_url"
+          :upload-prefix="imageUploadPrefix"
+          :project-id="projectId"
+        />
       </div>
 
       <div class="admin-field">

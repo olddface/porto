@@ -11,6 +11,7 @@ const navItems = [
   { label: 'experience', to: '/admin/experience' },
   { label: 'skills', to: '/admin/skills' },
   { label: 'projects', to: '/admin/projects' },
+  { label: 'settings', to: '/admin/settings' },
 ]
 
 async function handleSignOut() {
