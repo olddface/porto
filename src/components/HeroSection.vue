@@ -18,7 +18,7 @@ onMounted(() => {
       done.value = true
       clearInterval(interval)
     }
-  }, 80)
+  }, 120)
 })
 </script>
 
