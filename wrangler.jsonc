@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "portofolio",
+  "name": "fancy-grass-9dae",
   "compatibility_date": "2026-08-24",
   "main": "./.output/server/index.mjs",
   "assets": {

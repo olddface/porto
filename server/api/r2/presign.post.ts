@@ -1,5 +1,4 @@
-import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
+import { AwsClient } from 'aws4fetch'
 import { createClient } from '@supabase/supabase-js'
 
 interface R2Settings {
@@ -10,9 +9,16 @@ interface R2Settings {
   public_base_url: string
 }
 
+const PRESIGN_EXPIRES_SEC = 600
+const CONTENT_TYPE = 'image/webp'
+
 function sanitizePrefix(prefix: string): string {
   const cleaned = prefix.replace(/[^a-zA-Z0-9_\-/]/g, '').replace(/^\/+|\/+$/g, '')
   return cleaned || 'uploads'
+}
+
+function encodeObjectKey(key: string): string {
+  return key.split('/').map((segment) => encodeURIComponent(segment)).join('/')
 }
 
 export default defineEventHandler(async (event) => {
@@ -58,29 +64,30 @@ export default defineEventHandler(async (event) => {
   const key = `${prefix}/${crypto.randomUUID()}.webp`
 
   const r2 = settings as R2Settings
-  const client = new S3Client({
+  const objectPath = `${r2.bucket_name}/${encodeObjectKey(key)}`
+  const objectUrl = new URL(
+    `https://${r2.account_id}.r2.cloudflarestorage.com/${objectPath}`,
+  )
+  objectUrl.searchParams.set('X-Amz-Expires', String(PRESIGN_EXPIRES_SEC))
+
+  const client = new AwsClient({
+    accessKeyId: r2.access_key_id,
+    secretAccessKey: r2.secret_access_key,
+    service: 's3',
     region: 'auto',
-    endpoint: `https://${r2.account_id}.r2.cloudflarestorage.com`,
-    credentials: {
-      accessKeyId: r2.access_key_id,
-      secretAccessKey: r2.secret_access_key,
-    },
-    requestChecksumCalculation: 'WHEN_REQUIRED',
   })
 
-  const command = new PutObjectCommand({
-    Bucket: r2.bucket_name,
-    Key: key,
-    ContentType: 'image/webp',
-  })
+  const signedRequest = await client.sign(
+    new Request(objectUrl, {
+      method: 'PUT',
+      headers: { 'Content-Type': CONTENT_TYPE },
+    }),
+    { aws: { signQuery: true } },
+  )
 
-  const uploadUrl = await getSignedUrl(client, command, { expiresIn: 600 })
+  const uploadUrl = signedRequest.url.toString()
   const base = r2.public_base_url.replace(/\/$/, '')
-  const encodedKey = key
-    .split('/')
-    .map((segment) => encodeURIComponent(segment))
-    .join('/')
-  const publicUrl = `${base}/${encodedKey}`
+  const publicUrl = `${base}/${encodeObjectKey(key)}`
 
   setResponseHeader(event, 'content-type', 'application/json')
   return { uploadUrl, publicUrl, key }
