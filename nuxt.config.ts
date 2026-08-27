@@ -4,12 +4,15 @@ export default defineNuxtConfig({
   css: ['~/styles/base.css', '~/styles/admin.css'],
   routeRules: {
     '/admin/**': { ssr: false },
+    '/sitemap.xml': { cache: { maxAge: 3600 } },
+    '/robots.txt': { cache: { maxAge: 3600 } },
   },
   nitro: {
     preset: 'cloudflare_module',
   },
   runtimeConfig: {
     public: {
+      siteUrl: process.env.NUXT_PUBLIC_SITE_URL || 'https://olddface.my.id',
       supabaseUrl: '',
       supabasePublishableKey: '',
     },
