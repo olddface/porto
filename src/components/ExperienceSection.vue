@@ -1,7 +1,18 @@
 <script setup lang="ts">
+import ImageLightbox from '@/components/ImageLightbox.vue'
 import { usePortfolio } from '@/composables/usePortfolio'
 
 const { content } = usePortfolio()
+
+const lightbox = ref<{ images: { url: string }[]; index: number } | null>(null)
+
+function openLightbox(images: { url: string }[], index: number) {
+  lightbox.value = { images, index }
+}
+
+function closeLightbox() {
+  lightbox.value = null
+}
 </script>
 
 <template>
@@ -34,18 +45,29 @@ const { content } = usePortfolio()
               </li>
             </ul>
             <div v-if="job.images?.length" class="timeline__images">
-              <img
+              <button
                 v-for="(image, k) in job.images"
                 :key="k"
-                :src="image.url"
-                alt=""
-                class="timeline__image"
-              />
+                type="button"
+                class="timeline__image-btn"
+                :aria-label="`View image ${k + 1}`"
+                @click="openLightbox(job.images!, k)"
+              >
+                <img :src="image.url" alt="" class="timeline__image" />
+              </button>
             </div>
           </div>
         </article>
       </div>
     </div>
+
+    <ImageLightbox
+      v-if="lightbox"
+      :images="lightbox.images"
+      :index="lightbox.index"
+      @close="closeLightbox"
+      @update:index="lightbox.index = $event"
+    />
   </section>
 </template>
 
@@ -152,12 +174,31 @@ const { content } = usePortfolio()
   margin-top: 0.75rem;
 }
 
+.timeline__image-btn {
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: zoom-in;
+  border-radius: var(--radius);
+}
+
+.timeline__image-btn:focus-visible {
+  outline: 2px solid var(--green);
+  outline-offset: 2px;
+}
+
 .timeline__image {
+  display: block;
   width: 4.5rem;
   height: 4.5rem;
   object-fit: cover;
   border: 1px solid var(--border);
   border-radius: var(--radius);
+  transition: border-color 0.15s;
+}
+
+.timeline__image-btn:hover .timeline__image {
+  border-color: var(--green-dim);
 }
 
 @media (max-width: 640px) {
