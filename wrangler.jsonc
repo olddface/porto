@@ -7,5 +7,14 @@
     "directory": "./.output/public",
     "binding": "ASSETS"
   },
-"keep_vars": true
+  "observability": {
+    "logs": {
+      "enabled": true,
+      "invocation_logs": true
+    },
+    "traces": {
+      "enabled": false
+    }
+  },
+  "keep_vars": true
 }
