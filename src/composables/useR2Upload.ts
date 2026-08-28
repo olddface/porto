@@ -1,4 +1,5 @@
 import { convertToWebp } from '@/lib/imageWebp'
+import { normalizePublicObjectUrl } from '@/lib/publicUrl'
 import { useSupabaseClient } from '@/lib/supabase'
 
 interface PresignResponse {
@@ -7,29 +8,9 @@ interface PresignResponse {
   key: string
 }
 
-function verifyImageLoads(url: string): Promise<void> {
-  return new Promise((resolve, reject) => {
-    const img = new Image()
-    img.onload = () => resolve()
-    img.onerror = () =>
-      reject(
-        new Error(
-          'File uploaded to R2 but the public URL is not reachable. Enable R2 public access on the bucket and set public_base_url to your pub-xxx.r2.dev URL (not the S3 API endpoint).',
-        ),
-      )
-    img.src = `${url}${url.includes('?') ? '&' : '?'}v=${Date.now()}`
-  })
-}
-
 export async function uploadImageToR2(file: File, prefix: string): Promise<string> {
   const webpBlob = await convertToWebp(file)
-  const supabase = useSupabaseClient()
-  const { data: sessionData } = await supabase.auth.getSession()
-  const token = sessionData.session?.access_token
-
-  if (!token) {
-    throw new Error('Not authenticated')
-  }
+  const token = await getAuthToken()
 
   const presign = await $fetch<PresignResponse>('/api/r2/presign', {
     method: 'POST',
@@ -63,7 +44,33 @@ export async function uploadImageToR2(file: File, prefix: string): Promise<strin
     throw new Error(`Upload to R2 failed (${uploadRes.status})${detail ? `: ${detail}` : ''}`)
   }
 
-  await verifyImageLoads(presign.publicUrl)
+  // Store the cacheable public URL (custom domain or pub-xxx.r2.dev), not the S3 API endpoint.
+  return normalizePublicObjectUrl(presign.publicUrl)
+}
 
-  return presign.publicUrl
+async function getAuthToken(): Promise<string> {
+  const supabase = useSupabaseClient()
+  const { data: sessionData } = await supabase.auth.getSession()
+  const token = sessionData.session?.access_token
+
+  if (!token) {
+    throw new Error('Not authenticated')
+  }
+
+  return token
+}
+
+export async function deleteImagesFromR2(urls: string[]): Promise<void> {
+  const uniqueUrls = [...new Set(urls.filter(Boolean))]
+  if (!uniqueUrls.length) return
+
+  const token = await getAuthToken()
+
+  await $fetch('/api/r2/delete', {
+    method: 'POST',
+    body: { urls: uniqueUrls },
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  })
 }

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { updateProject } from '@/api/admin'
-import { uploadImageToR2 } from '@/composables/useR2Upload'
+import { deleteImagesFromR2, uploadImageToR2 } from '@/composables/useR2Upload'
 
 const imageUrl = defineModel<string>({ default: '' })
 
@@ -35,8 +35,15 @@ async function handleFileChange(event: Event) {
   success.value = null
   previewBroken.value = false
 
+  const previousUrl = imageUrl.value
+
   try {
     const url = await uploadImageToR2(file, props.uploadPrefix)
+
+    if (previousUrl && previousUrl !== url) {
+      await deleteImagesFromR2([previousUrl])
+    }
+
     imageUrl.value = url
     emit('uploaded', url)
 
@@ -54,10 +61,31 @@ async function handleFileChange(event: Event) {
   }
 }
 
-function removeImage() {
-  imageUrl.value = ''
+async function removeImage() {
+  const urlToDelete = imageUrl.value
+  if (!urlToDelete || uploading.value) return
+
+  uploading.value = true
+  error.value = null
   success.value = null
-  previewBroken.value = false
+
+  try {
+    await deleteImagesFromR2([urlToDelete])
+
+    if (props.projectId) {
+      await updateProject(props.projectId, { image_url: null })
+    }
+
+    imageUrl.value = ''
+    previewBroken.value = false
+    success.value = props.projectId
+      ? 'Thumbnail removed from R2 and project.'
+      : 'Thumbnail removed from R2.'
+  } catch (e) {
+    error.value = e instanceof Error ? e.message : 'Failed to remove image'
+  } finally {
+    uploading.value = false
+  }
 }
 
 function onPreviewError() {

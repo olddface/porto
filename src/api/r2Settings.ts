@@ -1,4 +1,5 @@
 import { useSupabaseClient } from '@/lib/supabase'
+import { normalizePublicBaseUrl } from '@/lib/publicUrl'
 
 export interface R2SettingsPublic {
   user_id: string
@@ -50,7 +51,7 @@ export async function upsertR2Settings(userId: string, input: R2SettingsInput): 
       account_id: input.account_id,
       access_key_id: input.access_key_id,
       bucket_name: input.bucket_name,
-      public_base_url: input.public_base_url,
+      public_base_url: normalizePublicBaseUrl(input.public_base_url),
       updated_at: new Date().toISOString(),
     }
 
@@ -73,7 +74,7 @@ export async function upsertR2Settings(userId: string, input: R2SettingsInput): 
     access_key_id: input.access_key_id,
     secret_access_key: input.secret_access_key,
     bucket_name: input.bucket_name,
-    public_base_url: input.public_base_url,
+    public_base_url: normalizePublicBaseUrl(input.public_base_url),
   })
 
   throwIfError(error)

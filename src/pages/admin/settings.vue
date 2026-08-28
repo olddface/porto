@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { fetchR2Settings, upsertR2Settings } from '@/api/r2Settings'
 import { useAuth } from '@/composables/useAuth'
+import { normalizePublicBaseUrl } from '@/lib/publicUrl'
 
 definePageMeta({ layout: 'admin' })
 
@@ -61,7 +62,7 @@ async function handleSubmit() {
       account_id: form.value.account_id.trim(),
       access_key_id: form.value.access_key_id.trim(),
       bucket_name: form.value.bucket_name.trim(),
-      public_base_url: form.value.public_base_url.trim().replace(/\/$/, ''),
+      public_base_url: normalizePublicBaseUrl(form.value.public_base_url),
       secret_access_key: form.value.secret_access_key.trim() || undefined,
     }
 

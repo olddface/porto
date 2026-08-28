@@ -1,4 +1,5 @@
 import { type SupabaseClient } from '@supabase/supabase-js'
+import { deleteImagesFromR2 } from '@/composables/useR2Upload'
 import { useSupabaseClient } from '@/lib/supabase'
 
 function db(client?: SupabaseClient) {
@@ -96,6 +97,18 @@ export async function insertImage(
 }
 
 export async function deleteImage(id: string): Promise<void> {
+  const { data, error: fetchError } = await db()
+    .from('images')
+    .select('url')
+    .eq('id', id)
+    .maybeSingle()
+
+  throwIfError(fetchError)
+
+  if (data?.url) {
+    await deleteImagesFromR2([data.url])
+  }
+
   const { error } = await db().from('images').delete().eq('id', id)
   throwIfError(error)
 }
@@ -105,6 +118,18 @@ export async function deleteImagesForParents(
   fromIds: string[],
 ): Promise<void> {
   if (!fromIds.length) return
+
+  const { data, error: fetchError } = await db()
+    .from('images')
+    .select('url')
+    .eq('from_table', fromTable)
+    .in('from_id', fromIds)
+
+  throwIfError(fetchError)
+
+  if (data?.length) {
+    await deleteImagesFromR2(data.map((row) => row.url))
+  }
 
   const { error } = await db()
     .from('images')
