@@ -9,9 +9,19 @@ const emit = defineEmits<{
   'update:index': [index: number]
 }>()
 
-const current = computed(() => props.images[props.index])
+const viewportRef = ref<HTMLElement | null>(null)
+const offset = ref(0)
+const dragging = ref(false)
+const animating = ref(false)
+
 const hasPrev = computed(() => props.index > 0)
 const hasNext = computed(() => props.index < props.images.length - 1)
+const canDrag = computed(() => props.images.length > 1)
+
+const trackStyle = computed(() => ({
+  transform: `translateX(calc(-${props.index * 100}% + ${offset.value}px))`,
+  transition: dragging.value || !animating.value ? 'none' : 'transform 0.28s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+}))
 
 function prev() {
   if (hasPrev.value) emit('update:index', props.index - 1)
@@ -31,7 +41,7 @@ const WHEEL_COOLDOWN_MS = 350
 let wheelCooldown = false
 
 function onWheel(e: WheelEvent) {
-  if (props.images.length <= 1 || wheelCooldown) return
+  if (!canDrag.value || wheelCooldown || dragging.value || animating.value) return
 
   const delta = Math.abs(e.deltaY) >= Math.abs(e.deltaX) ? e.deltaY : e.deltaX
   if (delta === 0) return
@@ -41,9 +51,87 @@ function onWheel(e: WheelEvent) {
     wheelCooldown = false
   }, WHEEL_COOLDOWN_MS)
 
-  if (delta > 0) next()
+  if (delta < 0) next()
   else prev()
 }
+
+const DRAG_THRESHOLD = 48
+let startX = 0
+
+function applyEdgeResistance(value: number) {
+  if (value < 0 && !hasNext.value) return value * 0.35
+  if (value > 0 && !hasPrev.value) return value * 0.35
+  return value
+}
+
+function slideWidth() {
+  return viewportRef.value?.offsetWidth ?? 0
+}
+
+function onPointerDown(e: PointerEvent) {
+  if (!canDrag.value || animating.value) return
+  dragging.value = true
+  startX = e.clientX
+  ;(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId)
+}
+
+function onPointerMove(e: PointerEvent) {
+  if (!dragging.value) return
+  offset.value = applyEdgeResistance(e.clientX - startX)
+}
+
+function finishDrag() {
+  if (!dragging.value) return
+  dragging.value = false
+
+  const width = slideWidth()
+  if (offset.value < -DRAG_THRESHOLD && hasNext.value) {
+    animating.value = true
+    offset.value = -width
+    return
+  }
+
+  if (offset.value > DRAG_THRESHOLD && hasPrev.value) {
+    animating.value = true
+    offset.value = width
+    return
+  }
+
+  if (offset.value !== 0) {
+    animating.value = true
+    offset.value = 0
+  }
+}
+
+function onPointerUp() {
+  finishDrag()
+}
+
+function onPointerCancel() {
+  if (!dragging.value) return
+  dragging.value = false
+  if (offset.value !== 0) {
+    animating.value = true
+    offset.value = 0
+  }
+}
+
+function onTransitionEnd(e: TransitionEvent) {
+  if (e.propertyName !== 'transform' || !animating.value) return
+
+  if (offset.value < 0) next()
+  else if (offset.value > 0) prev()
+
+  animating.value = false
+  offset.value = 0
+}
+
+watch(
+  () => props.index,
+  () => {
+    if (!dragging.value && !animating.value) offset.value = 0
+  },
+)
 
 onMounted(() => {
   document.body.style.overflow = 'hidden'
@@ -79,7 +167,30 @@ onUnmounted(() => {
         ‹
       </button>
 
-      <img :src="current.url" alt="" class="lightbox__image" />
+      <div
+        ref="viewportRef"
+        class="lightbox__viewport"
+        @pointerdown="onPointerDown"
+        @pointermove="onPointerMove"
+        @pointerup="onPointerUp"
+        @pointercancel="onPointerCancel"
+      >
+        <div
+          class="lightbox__track"
+          :style="trackStyle"
+          @transitionend="onTransitionEnd"
+        >
+          <div v-for="(image, i) in images" :key="i" class="lightbox__slide">
+            <img
+              :src="image.url"
+              alt=""
+              class="lightbox__image"
+              draggable="false"
+              @dragstart.prevent
+            />
+          </div>
+        </div>
+      </div>
 
       <button
         v-if="hasNext"
@@ -111,13 +222,40 @@ onUnmounted(() => {
   backdrop-filter: blur(4px);
 }
 
+.lightbox__viewport {
+  width: min(90vw, 56rem);
+  max-width: 100%;
+  overflow: hidden;
+  touch-action: none;
+  cursor: grab;
+  user-select: none;
+}
+
+.lightbox__viewport:active {
+  cursor: grabbing;
+}
+
+.lightbox__track {
+  display: flex;
+  will-change: transform;
+}
+
+.lightbox__slide {
+  flex: 0 0 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+}
+
 .lightbox__image {
-  max-width: min(90vw, 56rem);
+  max-width: 100%;
   max-height: 85vh;
   object-fit: contain;
   border: 1px solid var(--border-bright);
   border-radius: var(--radius);
   box-shadow: 0 0 40px rgba(0, 0, 0, 0.5);
+  pointer-events: none;
 }
 
 .lightbox__close {
