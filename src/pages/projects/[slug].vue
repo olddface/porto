@@ -5,7 +5,7 @@ import { renderMarkdown } from '@/lib/markdown'
 const route = useRoute()
 const slug = computed(() => route.params.slug as string)
 
-const { data: project } = await useAsyncData(
+const { status, data: project } = await useLazyAsyncData(
   () => `project-${slug.value}`,
   () => fetchProjectBySlug(slug.value),
 )
@@ -41,26 +41,34 @@ useHead({
       <NuxtLink to="/#projects" class="detail__back">
         <span class="prompt-symbol">$</span> cd ../projects
       </NuxtLink>
-
-      <template v-if="project">
+      <div v-if="status === 'error'" class="detail__not-found">
         <p class="detail__prompt prompt">
           <span class="prompt-user">guest</span><span class="prompt-symbol">@</span><span class="prompt-path">portfolio</span><span class="prompt-symbol">:~$</span>
-          cat ./{{ project.slug }}/README.md
+          cat ./{{ slug }}/README.md
+        </p>
+        <p class="detail__error">error: project not found</p>
+        <NuxtLink to="/#projects" class="btn">$ cd ../projects</NuxtLink>
+      </div>
+
+      <template v-else-if="status === 'success'">
+        <p class="detail__prompt prompt">
+          <span class="prompt-user">guest</span><span class="prompt-symbol">@</span><span class="prompt-path">portfolio</span><span class="prompt-symbol">:~$</span>
+          cat ./{{ project?.slug }}/README.md
         </p>
 
         <h1 class="detail__name">
           <span class="prompt-symbol">./</span>{{ project.name }}
         </h1>
 
-        <p class="detail__desc">{{ project.description }}</p>
+        <p class="detail__desc">{{ project?.description }}</p>
 
-        <div v-if="project.image_url" class="detail__hero">
-          <img :src="project.image_url" alt="" class="detail__hero-image" />
+        <div v-if="project?.image_url" class="detail__hero">
+          <img :src="project?.image_url" alt="" class="detail__hero-image" />
         </div>
 
-        <div v-if="project.images?.length" class="detail__gallery">
+        <div v-if="project?.images?.length" class="detail__gallery">
           <img
-            v-for="(image, i) in project.images"
+            v-for="(image, i) in project?.images"
             :key="i"
             :src="image.url"
             alt=""
@@ -69,7 +77,7 @@ useHead({
         </div>
 
         <div class="detail__stack">
-          <span v-for="tech in project.stack" :key="tech" class="tag">
+          <span v-for="tech in project?.stack" :key="tech" class="tag">
             <TechIcon :tech="tech" />{{ tech }}
           </span>
         </div>
@@ -84,7 +92,7 @@ useHead({
             <span class="prompt-symbol">//</span> highlights
           </h2>
           <ul class="detail__highlights">
-            <li v-for="(item, i) in project.highlights" :key="i" class="detail__highlight">
+            <li v-for="(item, i) in project?.highlights" :key="i" class="detail__highlight">
               <span class="detail__marker">&gt;</span>
               {{ item }}
             </li>
@@ -105,8 +113,8 @@ useHead({
             $ {{ projectRepo }}
           </span>
           <a
-            v-if="project.demo !== '#'"
-            :href="project.demo"
+            v-if="project?.demo !== '#'"
+            :href="project?.demo"
             target="_blank"
             rel="noopener noreferrer"
             class="btn btn--filled"
@@ -115,15 +123,12 @@ useHead({
           </a>
         </div>
       </template>
+      <template v-else>
+        <div class="detail__loading">
+          <div class="detail__loading-spinner"></div>
+        </div>
+      </template>
 
-      <div v-else class="detail__not-found">
-        <p class="detail__prompt prompt">
-          <span class="prompt-user">guest</span><span class="prompt-symbol">@</span><span class="prompt-path">portfolio</span><span class="prompt-symbol">:~$</span>
-          cat ./{{ slug }}/README.md
-        </p>
-        <p class="detail__error">error: project not found</p>
-        <NuxtLink to="/#projects" class="btn">$ cd ../projects</NuxtLink>
-      </div>
     </div>
   </section>
 </template>
