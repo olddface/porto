@@ -27,6 +27,24 @@ function onKeydown(e: KeyboardEvent) {
   else if (e.key === 'ArrowRight') next()
 }
 
+const WHEEL_COOLDOWN_MS = 350
+let wheelCooldown = false
+
+function onWheel(e: WheelEvent) {
+  if (props.images.length <= 1 || wheelCooldown) return
+
+  const delta = Math.abs(e.deltaY) >= Math.abs(e.deltaX) ? e.deltaY : e.deltaX
+  if (delta === 0) return
+
+  wheelCooldown = true
+  window.setTimeout(() => {
+    wheelCooldown = false
+  }, WHEEL_COOLDOWN_MS)
+
+  if (delta > 0) next()
+  else prev()
+}
+
 onMounted(() => {
   document.body.style.overflow = 'hidden'
   window.addEventListener('keydown', onKeydown)
@@ -40,7 +58,13 @@ onUnmounted(() => {
 
 <template>
   <Teleport to="body">
-    <div class="lightbox" role="dialog" aria-modal="true" @click.self="emit('close')">
+    <div
+      class="lightbox"
+      role="dialog"
+      aria-modal="true"
+      @click.self="emit('close')"
+      @wheel.prevent="onWheel"
+    >
       <button type="button" class="lightbox__close" aria-label="Close" @click="emit('close')">
         ×
       </button>
