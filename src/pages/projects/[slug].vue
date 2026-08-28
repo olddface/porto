@@ -124,8 +124,12 @@ useHead({
         </div>
       </template>
       <template v-else>
-        <div class="detail__loading">
-          <div class="detail__loading-spinner"></div>
+        <div class="detail__loading" aria-busy="true" aria-label="Loading project">
+          <p class="detail__loading-prompt prompt">
+            <span class="prompt-user">guest</span><span class="prompt-symbol">@</span><span class="prompt-path">portfolio</span><span class="prompt-symbol">:~$</span>
+            cat ./{{ slug }}/README.md<span class="cursor-blink" />
+          </p>
+          <div class="detail__loading-spinner" aria-hidden="true" />
         </div>
       </template>
 
@@ -270,5 +274,33 @@ useHead({
   color: var(--red);
   font-size: 1rem;
   margin-bottom: 1.5rem;
+}
+
+.detail__loading {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1.5rem;
+  padding-block: 2rem 4rem;
+  min-height: 40vh;
+}
+
+.detail__loading-prompt {
+  font-size: 0.75rem;
+}
+
+.detail__loading-spinner {
+  width: 1.25rem;
+  height: 1.25rem;
+  border: 2px solid var(--border-bright);
+  border-top-color: var(--green);
+  border-radius: 50%;
+  animation: detail-spin 0.7s linear infinite;
+}
+
+@keyframes detail-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 </style>
