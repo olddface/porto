@@ -3,25 +3,14 @@ import { usePortfolio } from '@/composables/usePortfolio'
 
 const { content } = usePortfolio()
 
-const expanded = ref(false)
 const initialCount = 3
 
 const projects = computed(() => content.value?.projects ?? [])
 const hasMore = computed(() => projects.value.length > initialCount)
-const visibleProjects = computed(() =>
-  expanded.value ? projects.value : projects.value.slice(0, initialCount),
-)
+const visibleProjects = computed(() => projects.value.slice(0, initialCount))
 
 function projectThumbnail(project: { image_url?: string | null; images?: { url: string }[] }) {
   return project.image_url || project.images?.[0]?.url || null
-}
-
-function showMore() {
-  expanded.value = true
-}
-
-function showLess() {
-  expanded.value = false
 }
 </script>
 
@@ -65,12 +54,9 @@ function showLess() {
       </div>
 
       <div v-if="hasMore" class="projects__more">
-        <button v-if="!expanded" type="button" class="btn" @click="showMore">
+        <NuxtLink to="/projects" class="btn">
           $ more projects ({{ projects.length - initialCount }})
-        </button>
-        <button v-else type="button" class="btn" @click="showLess">
-          $ show less
-        </button>
+        </NuxtLink>
       </div>
     </div>
   </section>

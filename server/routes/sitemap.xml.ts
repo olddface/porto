@@ -16,6 +16,7 @@ export default defineEventHandler(async (event) => {
 
   const urls: { loc: string; priority: string }[] = [
     { loc: `${siteUrl}/`, priority: '1.0000' },
+    { loc: `${siteUrl}/projects`, priority: '0.9000' },
   ]
 
   const supabaseUrl = config.public.supabaseUrl as string

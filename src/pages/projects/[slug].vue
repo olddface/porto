@@ -38,7 +38,7 @@ useHead({
 <template>
   <section class="detail section">
     <div class="container">
-      <NuxtLink to="/#projects" class="detail__back">
+      <NuxtLink to="/projects" class="detail__back">
         <span class="prompt-symbol">$</span> cd ../projects
       </NuxtLink>
       <div v-if="status === 'error'" class="detail__not-found">
@@ -47,7 +47,7 @@ useHead({
           cat ./{{ slug }}/README.md
         </p>
         <p class="detail__error">error: project not found</p>
-        <NuxtLink to="/#projects" class="btn">$ cd ../projects</NuxtLink>
+        <NuxtLink to="/projects" class="btn">$ cd ../projects</NuxtLink>
       </div>
 
       <template v-else-if="status === 'success'">

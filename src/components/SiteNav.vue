@@ -16,10 +16,16 @@ function closeMenu() {
   menuOpen.value = false
 }
 
+function navTo(href: string) {
+  return href.startsWith('#') ? { path: '/', hash: href } : href
+}
+
 function isNavActive(href: string): boolean {
+  if (href === '/projects') {
+    return route.path === '/projects' || route.path.startsWith('/projects/')
+  }
   const id = href.replace('#', '')
-  if (route.path.startsWith('/projects/') && id === 'projects') return true
-  return activeSection.value === id
+  return route.path === '/' && activeSection.value === id
 }
 
 let observer: IntersectionObserver | null = null
@@ -79,7 +85,7 @@ onUnmounted(() => {
         <NuxtLink
           v-for="link in NAV_ITEMS"
           :key="link.href"
-          :to="{ path: '/', hash: link.href }"
+          :to="navTo(link.href)"
           class="nav__link"
           :class="{ active: isNavActive(link.href) }"
           @click="closeMenu"
